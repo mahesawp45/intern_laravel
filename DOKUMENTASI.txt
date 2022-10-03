@@ -1,0 +1,86 @@
+===== FLOW APLIKASI LARAVEL BERJALAN =====
+
+1. FLOW INSTALASI LARAVEL:
+
+1. Install Laravel:
+    - melalui composer : composer create-project laravel/laravel nama_app
+    - melalui global terinstall di local :
+                                        - composer global require laravel/installer (Install di local)
+                                        - laravel new nama_app (setiap ingin membuat laravel_app)
+
+2. Menjalankan aplikasi Laravel :
+    - php artisan serve
+
+3. Konfigurasi variable pada file .env yang umum :
+    - nama app
+    - env app
+    - koneksi ke database (mysql, postgres dll)
+    - nama database yang digunakan
+    - password database yang digunakan
+
+4. Konfigurasi pada database:
+    - Buat database yang sama dengan nama database pada .env laravel untuk DBMS contoh mysql-phpmyadmin
+    - jalankan perintah : php artisan migrate (agar semua migration pada directory database/migration langsung dibuat menjadi table pada database yang terkoneksi dengan aplikasi)
+
+---------------------------------------------------------------------------------------------------------------
+
+2. KONSEP ARSITEKTUR LARAVEL
+
+Request Life Cycle
+    1. Keseluruhan aplikasi dijalankan melalui (entry point) /public/index.php, yang dimana akan menjalankan autoload dan bootstrap :
+        - autoload : mengeload data/file yang kita gunakan dengan composer, seperti dependency pihak ketiga
+        - bootstrap : membuat instansiasi keseluruhan aplikasi
+
+    2. HTTP / Console Kernels
+        - Pertama, menjalankan beberapa middleware yang berlokasi pada app/Http/Kernel.php
+        - middleware :
+                    - fungsinya untuk mempatroli setiap request yang masuk sebelum lanjut menjalankan aplikasi sesuai dengan request yang didapat melalui routing
+        - terdapat beberapa jenis/Kategori middleware :
+            - middleware : akan selalu dijalankan pada setiap request yang didapat aplikasi
+            - middlewareGroups : dijalankan sesuai grup routing masing-masing, misal pada web atau api
+            - routeMiddleware : dijalankan sesuai dengan routing yang akan menggunakannya, entah route group atau individu route
+
+    3. Service Providers
+        - menjalankan beberapa component pada aplikasi seperti database, queue, validation dll yang ada pada array providers pada file config/app.php
+        - laravel akan melakukan pengulangan yang nantinya akan menginstansiasi seluruh Class yang ada pada array Providers, kemudian menjalankan method register yang ada pada setiap Class untuk mendaftarkannya pada aplikasi.
+        - Setelah menjalankan register method, kemudian menjalankan boot method agar setiap provider bisa berjalan sesuai dengan fungsinya dan dapat digunakan di component aplikasi manapun
+
+    4. routing (routeServiceProvider)
+        - provider ini berfungsi untuk mengeload file route yang sudah dikonfigurasi pada directory routes
+        - ada beberapa jenis/kategori route yang sudah tersedia dalam laravel :
+            - web : ini route aplikasi laravel, didalamnya menangani request-request untuk menjalankan aplikasi, sesuai dengan controller
+            - api : ini route untuk menangani request endpoint api oleh client, sesuai dengan controller
+
+---------------------------
+Service Container
+    1. Berfungsi untuk mengatur dependency class satu dengan class yang membutuhkannya
+
+    2. .....
+
+----------------------------
+Service Provider
+    1. Berfungsi sebagai inti dari aplikasi. Menjalankan beberapa class yang memilki fungsinya masing-masing untuk membangun aplikasi, contohnya DatabaseServiceProvider yang memfasilitasi semua jenis kebutuhan aplikasi yang berkaitan dengan Database
+
+    2. Membuat custom service provider, dengan perintah : php artisan make:provider namaServiceProvider
+
+    3. Konfigurasi register method dan boot method yang ada pada custom serviceProvider :
+        - register method :
+            - berfungsi untuk mendaftarkan semua dependency yang digunakan dalam serviceProvider
+        - boot method :
+            - berfungsi untuk memberi akses ke semua component aplikasi agar bisa menggunakan fungsin apa yang disediakan pada serviceProvider
+
+    4. Setelah membuat custom service provider, daftarkan pada array providers config/app.php
+
+
+
+---------------------------------------------------------------------------------------------------------------
+
+
+#PERTANYAAN :
+
+1. Bagaimana contoh pembuatan dan penggunaan Service Container dalam project?
+
+2. Bagaimana contoh dan penggunaan dari Custom Service Provider yang kita buat, dan pada case apa saja kita harus membuat Custom Service Provider?
+
+
+
