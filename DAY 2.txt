@@ -1,0 +1,231 @@
+===== The Basic Laravel =====
+
+
+1. ROUTING
+
+    1. Basic Routing
+        - routing pada laravel secara basic hanya terdiri dari URI dan closure function yang menjadi parameter untuk setiap method static yang dimiliki Route facades :
+            contoh :
+                - Route::get('/greeting', function () {
+                        return 'Hello World';
+                    });
+                - Atau bisa memanggil method pada class Controller : Route::get('/user', [UserController::class, 'index']);
+
+        1. Semua routes aplikasi terkonfigurasi pada directory /routes, dimana defaultnya adalah pada /routes/web.php
+        2. Semua file yang ada pada /routes yang telah terdaftar di boot method RouteServiceProvider akan otomatis dijalankan oleh Laravel
+        3. Beberapa HTTP request method yang didukung pada Route dan diakses secara static method adalah (get, post, put, patch, delete, options)
+        4. Kita bisa membuat 1 route dengan multi request method dengan menggunakan method match(['get', 'post'], 'path-route', closure) pada Route
+        5. Menangkap atau memberi respon ke multi request di route yang sama dengan method any('path-route', closure)
+
+        6. dependency injection dengan service container dapat dilakukan dengan menggunakan callback yang telah berisi sebuah Class yang menjadi paramnya, contoh :
+            - Route::get('/users', function (Request $request) {
+                    // ...
+                });
+
+        7. CSRF Protection adalah suatu proteksi yang dimiliki Laravel untuk menjaga form html kita aman dari script script yang tidak semestinya ditulis/ketik pada input form. Ini bisa digunakan langsung pada form Html dengan @csrf tepat dibawah tag pembuka form
+
+        8. Redirect Route dapat digunakan untuk menangani request yang kemudian user diarahkan ke path lain dalam aplikasi/luar, bisa menggunakan contoh :
+            - Route::redirect('/here', '/there', 301 (secara explisit memberi statusCode));
+
+        9. View Route digunakan apabila suatu route hanya bertugas menampilkan view, contoh :
+            - Route::view('/welcome', 'nama-vue', [data dalam bentuk array assosiative]);
+
+        10. Route list
+            - php artisan route:list : untuk melihat daftar route yang telah dibuat, dapat menggunakan command,
+            - php artisan route:list -v : untuk bisa melihat route yang telah dibungkus middleware dapat menggunakan command.
+            - php artisan route:list --path=namaPath : untuk menampilkan spesifik path yang dimaksud
+
+--------------------------------
+    2. Route Parameter
+        1. Requred param ini adalah param yang dikirim/direquest melalui url, contoh :
+            - Route::get('/user/{id}', function ($id) {
+                return 'User '.$id;
+            });
+            - bisa lebih dari 1 param, sesuai dengan kebutuhan
+            - param dibungkus dengan {} dan hanya bisa diisi alphabet dan _ bisa digunakan
+            - param diinjeksi melalui callback
+
+        2. Parameters & Dependency Injection, bisa dilakukan contoh :
+            - Route::get('/user/{id}', function (Request $request, $id) {
+                return 'User '.$id;
+            });
+            - dengan aturan param diletakan setelah dependency yang dibutuhkan dalam callback
+
+        3. Optional Parameters adalah memberi fleksibilitas untuk request pada 1 route, contohnya {name?}. pastikan tetap memberikan default value paramnya pada callback
+
+        4. Regular Expression Constraints, digunakan untuk memfilter param sesuai dengan pattern dari regex contoh:
+            - Route::get('/user/{name}', function ($name) {
+                    //
+            })->where('name', '[A-Za-z]+'); (artinya, param name harus berupa alphabet, dan caseInsensitive)
+
+        5. Daripada mendaftarkan 1 1 untuk filter regex dengan jenis param yang sama, kita bisa daftarkan/jalankan Global Constraints pada RouteServiceProvider di method boot, contoh :
+            - Route::pattern('id', '[0-9]+');.. setelah ini dibuat, pada route akan otomatis melakukan filter berdasarkan regex untuk param dengan nama yg sama
+
+-----------------------------------
+    3. Named Routes
+        1. sebuah method yang digunakan untuk memberi nama pada route yang dibuat, Route::get(
+            '/user/profile',
+            [UserProfileController::class, 'show']
+        )->name('profile'); (Apabila ingin diakses pada method redirect, bisa langsung masukkan nama dari named route yang dibuat)
+
+        2. Inspecting The Current Route / Memantau route saat ini bisa dilakukan, biasanya digunakan pada middleware pada method handle, contoh :
+            - if ($request->route()->named('profile')) {
+                //
+                }
+
+------------------------------------
+    4. Route Groups
+        1. ini fungsinya untuk menggrouping route yang memilki beberapa kesamaan, seperti middleware,controller, dll
+
+        2. contoh group untuk middleware yang sama : https://laravel.com/docs/9.x/routing#route-group-middleware
+
+        3. contoh group untuk controller yang sama : https://laravel.com/docs/9.x/routing#route-group-controllers
+
+        4. Route Prefixes biasanya digunakan untuk memberi prefix pada setiap route yang ada dalam group route ini, contoh : https://laravel.com/docs/9.x/routing#route-group-prefixes (bisa juga dichaining dengan name method dan diakses dengan (prefix.name))
+
+-------------------------------------
+    5. Route Model Binding
+        1. ini fungsinya untuk menginjection Model yang berelasi dengan database ke callback route, ini pengganti param yang agnostik
+
+        2. Implisit binding adalah binding Model dengan param url dan param yang berupa Model pada callback yang sama contohnya, apa bila param pada route {user}, maka akan dibinding dengan param $user yang bertipe Model User pada callback, contoh : https://laravel.com/docs/9.x/routing#implicit-binding
+
+        3. Soft Deleted Models, biasanya implicit binding pada default tidak bisa mengakses model yang telah dihapus sementara pada case tertentu, ini bisa diatasi dengan menchaining method withTrashed()
+
+        4. Customizing The Key pada param, bisa dilakukan dengan contoh :
+            - {param:key/column-yg-diinginkan} atau pada https://laravel.com/docs/9.x/routing#customizing-the-key, ini dilakukan jikalau kita ingin menggunakan key selain id/column table lain untuk bisa request data
+
+            - Perlu diingat untuk mengoverride getRouteKeyName() pada Model, lalu return nama column yang digunakan
+
+            - apabila melakukan nested binding pada route contohnya : /users/{user}/posts/{post:slug}, kita bisa menchaining method scopeBindings / menggrouping route dengan scopeBindings sebagai ganti menulis secara explisit column yang digunakan
+
+        5. Customizing Missing Model Behavior, adalah sebuah method yang tugasnya meredirect ke halaman kustom apabila terjadi error 404, contoh : https://laravel.com/docs/9.x/routing#customizing-missing-model-behavior
+
+        6. Explicit Binding memungkin untuk mendaftarkan Model apa yang dibinding berdasarkan namanya pada method boot di RouteServiceProvider contoh : Route::model('user', User::class);.. dan tentunya ini bisa diakses pada route asalkan paramnya sama dengan nama bindingnya
+
+------------------------------
+    6. Fallback Routes
+        - berfungsi untuk mereturn view Custom apabila user/client merequest route yang tidak ada pada aplikasi
+
+        - Harus dibuat diakhir semua routing yang kita buat di file web.php
+
+-----------------------------
+    7. Rate Limiting
+        - berfungsi untuk memberi limit request, secara global (untuk semua user/client) atau per segment tertentu semisal untuk user non premium dan premium
+
+        - terdiri dari nama rateLimitnya yang nanti bisa diimplementasikan pada route, lalu diikuti callback untuk menangani limitnya
+
+        - contoh : https://laravel.com/docs/9.x/routing#rate-limiting
+
+        - menggunakan ratelimit pada route dengan bantuan middleware(['throttle:namaLimiter']), contoh : https://laravel.com/docs/9.x/routing#attaching-rate-limiters-to-routes
+
+------------------------------
+    8. Form Method Spoofing
+        - Html pada defaultnya hanya memiliki method get dan post pada formnya, maka dari itu kita harus mengoverride methodnya dengan @method('NamaMethod') dan tepat dibawahnya isikan @csrf agar tetap terproteksi
+
+-----------------------------
+    9. Route Chaching
+        - bisa dijalankan dengan command (php artisan route:cache), ini untuk mendaftarkan route yang telah kita buat agar bisa digunakan di setiap component aplikasi
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+
+2. CONTROLLERS
+
+    1. Basic
+        1. membuat controller : php artisan make:controller namaController
+
+        2. Berfungsi sama seperti callback pada route yaitu sebagai penanganan setiap request yang didapat pada route, ini lebih disarankan karena laravel mendukung MVC
+
+        3. Controller biasanya berisi beberapa method yang seolah-olah menjadi endpoint untuk request
+
+        4. Kita bisa membuat route dengan contoh : Route::get('/user/{id}', [UserController::class, 'show']);, terdiri dari Class Controllernya dan string nama method yang akan dituju oleh route
+
+        5. Single Action Controllers, bisa dilakukan dengan method __invoke(), ini digunakan apabila 1 Controller hanya menangani 1 function saja, contoh : https://laravel.com/docs/9.x/controllers#single-action-controllers, dapat dibuat dengan command artisan sebelumnya ditambah --invokable
+
+-----------------------------
+    2. Controller Middleware
+        1. Controller bisa balut dengan middleware pada route, contoh :
+            - Route::get('profile', [UserController::class, 'show'])->middleware('auth');
+
+        2. Bisa juga dilakukan pada constuctor dari Controllernya untuk membalut middleware secara spesifik dan jumlah yang banyak, contoh : https://laravel.com/docs/9.x/controllers#controller-middleware
+
+        3. Controller juga bisa mendaftarkan middlewarenya sendiri apabila middlewarenya tidak semua digunakan pada aplikasi, contoh :  https://laravel.com/docs/9.x/controllers#controller-middleware
+
+------------------------------
+    3. Controller Resource
+        1. dapat dibuat dengan command : php artisan make:controller NamaController --resource
+
+        2. Fungsinya untuk menangani fungsi aplikasi CRUD
+
+        3. bentuknya : Route::resource('end-point', NamaController::class);
+
+        4. didalamnya terdapat method index, create, store, show, edit, update dan destroy
+
+        5. Kita dapat mengcustom halaman apabila user/client error saat merequest resource controller ini dengan menchaining missing() pada route
+
+        6. Kita dapat memspesifikan Model apa yang akan tehubung dengan Controller yang kita buat dengan command : php artisan make:controller NamaController --model=NamaModel --resource
+
+        7. API Resource Routes, dapat dibuat dengan command : php artisan make:controller API/NamaController
+            - API resource bentuknnya : Route::apiResource('photos', PhotoController::class);
+            - dan bisa di grouping seperti contoh : https://laravel.com/docs/9.x/controllers#api-resource-routes
+
+        8. Nested Resource
+            - Digunakan apabila ada suatu resource controller yang memiliki anak resource controller juga
+
+            - diakses dengan parent.child contoh : Route::resource('photos.comments', PhotoCommentController::class);
+
+            - lebih lengkapnya : https://laravel.com/docs/9.x/controllers#restful-nested-resources
+
+            - Scoping Resource Routes, berfungsi untuk mengubah id menjadi column yang diinginkan, contoh : https://laravel.com/docs/9.x/controllers#restful-scoping-resource-routes
+
+            - Jika ingin menambahkan method selain default dari resource method, kita bisa tambahkan routenya diatas resource, contoh: https://laravel.com/docs/9.x/controllers#restful-supplementing-resource-controllers
+
+        9. Dependency Injection & Controllers
+            - dibagi menjadi 2 yaitu pada constuctor dan pada method
+
+            - contoh pada constuctor : https://laravel.com/docs/9.x/controllers#constructor-injection, pada, constructor harus membuat variable yang akan menampung dependencynya
+
+            - contoh pada method : https://laravel.com/docs/9.x/controllers#method-injection
+
+            - apabila terdapat param di routenya, maka param ditulis setelah Dependency pada method
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+3. VIEW
+    1. Kita bisa melempar view dari route atau controller dengan method global laravel yaitu view()
+
+------------------------------
+
+    2. method view menerima 2 param yaitu, nama view/file view yang berada pada directory resource, dan Array data yang akan ditampilkan ke View
+
+------------------------------
+
+    3. Nested view adalah file view yang tersimpan dalam directory custom yang berada pada directory resource, diakses dengan directoryCustom.namaView
+
+-------------------------------
+
+    4. View Composer, memungkin kita untuk sharing data yang sama ke seluruh view aplikasi, dan melakukan lazy loading
+
+        - Secara default laravel tidak menyediakan Composer, jadi kita harus membuatnya manual, contoh pembuatannya : https://laravel.com/docs/9.x/views#view-composers
+
+        - buat file composer yang berupa class dan berisi method compose yang nanti bertugas memberi data kepada view
+
+        - Setelah itu buat serviceProvider baru untuk mendaftarkan composer ke dalam boot method, contoh : https://laravel.com/docs/9.x/views#view-composers
+
+        - Composer bisa didaftarkan secara 1 1 atau bisa menggunakan miltiComposer, contoh : https://laravel.com/docs/9.x/views#attaching-a-composer-to-multiple-views
+
+        - Composer bisa menerima '*', ini memungkinkan data dishare keseluruh view aplikasi
+
+--------------------------------
+
+    5. View Creators, sama seperti View Composer, hanya saja ia melakukan eager loading
+
+========================================================================================================================
+
+#PERTANYAAN
+
+1. apa contoh case menangani multi request HTTP method seperti penjelasan method match dan any pada Routing?
+
+
+
