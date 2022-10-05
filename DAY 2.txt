@@ -221,11 +221,75 @@
 
     5. View Creators, sama seperti View Composer, hanya saja ia melakukan eager loading
 
+----------------------------------------------------------------------------------------------------------------------------------------
+4. Middleware
+
+    1.Basic Middleware
+        - Middleware adalah sebuah patroli untuk setiap request user sebelum diteruskan ke request yang diinginkan
+
+        - Membuat middleware bisa dengan command : php artisan make:middleware NamaMiddleware, nantinya akan ada file baru di app/http/middleware
+
+        - Pada dasarnya middleware akan memfilter request user berdasarkan kesesuaian atribute yang diberikan user saat merequest
+
+        - Untuk Basic Middleware terdapat Closure $next() yang berfungsi untuk memberi izin kepada user untuk meneruskan requestnya ke aplikasi. Namun apa bila filternya didapati menyalahi aturan yang dibuat maka akan di redirect ke halaman tertentu, contoh :
+            - https://laravel.com/docs/9.x/middleware#defining-middleware
+
+        - Middleware & Responses
+            - middleware bisa melakukan tasknya sebelum atau sesudah request, https://laravel.com/docs/9.x/middleware#before-after-middleware
+
+----------------------------------------
+    2. Mendaftarkan middleware
+        - Kita bisa mendaftarkan middleware secara global, group ataupun routing di dalam app/http/kernel.php, sesuaikan namanya
+
+        - pada global daftarkan di dalam array $middleware,
+        - pada group di dalam $middlewareGroups, yang nantinya sesuaikan lagi berdasarkan groupnya yaitu web atau api
+        - pada routing tertentu di dalam $routeMiddleware
+
+        - Penggunaan middleware pada route bisa dilakukan dengan menchaining method middleware(), lalu diisi argumen nama middleware yang akan digunakan dalam bentung string
+
+        - kita bisa menggunakan [] of middleware dalam argumen middleware()
+
+        - Kita bisa mengecualikan suatu route apabila terdapat penggunaan middleware pada groupnya dengan menchaining method withoutMiddleware() pada route yang tidak menggunakan middleware berdasarkan groupnya
+
+        - Kita juga bisa mengecualikan suatu group route dengan menggunakan method static withoutMiddleware() yang ada pada Route, ini tidak berlaku untuk middleware global
+
+        - Middleware Groups ($middlewareGroups) yang terdapat pada Kernel.php akan otomatis digunakan pada setiap groupnya
+
+----------------------------------------
+    3. Middleware Parameters
+        - Kita bisa menambahkan param atau ...param pada method handle di middleware, ini tujuannya apabila user memilki role tertentu misalnya
+
+        - param ini digunakan dalam method middleware() yang terchaining dengan routenya contoh : 'role:admin' atau 'role:admin,owner'
+
+----------------------------------------
+    4. Terminable Middleware
+        - kita bisa langsung membuat method terminate($request, $response) pada class Middleware kita
+        - fungsinya untuk merefresh middleware, karena ia akan selesai digunakan bila request sudah selesai dan akan digunakan kembali apa bila ada request masuk, ini dilakukan secara otomatis oleh laravel
+
+        - apabila ingin mereference ke class Middleware yang sama, maka buatkan singleton serviceContainer pada AppServiceProvider, contoh : https://laravel.com/docs/9.x/middleware#terminable-middleware
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+5. CSRF
+    1. Merupakan suatu token yang digunakan untuk menghalau user yang belum terauthenticate untuk bisa merequest
+
+    2. Cara kerjanya adalah Laravel otomatis memberi token untuk setiap user yang active (user session), token inilah yang nantinya dicocokan dengan token yang ada juga pada laravel, apabila dverify maka token akan digenerate ulang
+
+    3.Cara penggunaan csrf token ini adalah, apabila setiap kita menggunakan HTTP Method seperti PUT, PATCH, POST, DELETE, maka tepat dibawahnya kita langsung tambahkan @csrf atau bisa juga dengan input hidden bervalue csrf_token()
+
+    4. Kita bisa mengecualikan suatu request dengan csrf ini biasanya digunakan apa bila aplikasi kita memungkinkan user merequest pihak luar, kita bisa tambahkan string url routenya pada variable $except dalam class VerifyCsrfToken yang ada pada middleware
+
+
+
+
 ========================================================================================================================
 
 #PERTANYAAN
 
 1. apa contoh case menangani multi request HTTP method seperti penjelasan method match dan any pada Routing?
+
+2. bagaimana contoh penerapan middleware yang melakukan tasknya sebelum atau sesudah request?
 
 
 
