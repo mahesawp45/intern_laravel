@@ -1,0 +1,193 @@
+===== Repository Design Pattern ====
+
+1. Pengertian
+    - Ini adalah suatu design pattern dalam pembuatan aplikasi dengan memisahkan Data Access Layer dan Business Logic Layer, sehingga aplikasi tidak menjadi Tight Coupling antar componentnya
+
+    - Biasanya diterapkan untuk membuat aplikasi berbasis Restful API tetapi tidak menutup untuk non Restful API
+
+    - Dengan menerapkan ini Business Logic Layer tidak perlu mengetahui bagaimana data didapat atau diolah. Business Logic Layer hanya akan menggunakan fitur apa yang disediakan dari Data Access Layer sesuai yang diinginkan saja
+
+    - Data Access Layer berfungsi untuk mengabstraksi proses data dibuat atau diolah dengan memanfaatkan Class yang bertugas sebagai pendefinisi Struktur Data/Model
+
+-------------------------------------------------------------------------------------------------------------------------------------
+2. Penerapan Design Pattern
+    - Pada project, Data Access Layer dibuat di dalam directory Repositories. Directory ini akan menampung beberapa directory Modul/Fitur aplikasi dengan gaya Monolith. Di dalam directory Modul ini akan terdapat 2 file lagi yaitu Interface dari Modul dan Pengelola Data dari Modul tersebut. Bisa di contohkan sebagai berikut :
+        APP (Monolith)
+        - Repositories                      _ _ UserRepositoryInterface.php
+                      |                    |
+                      |--- Modul1 (User) --
+                      |                    |_ _ UserRepository.php
+                      |
+                      |--- Modul2 (Transaction) -- ~ // ~
+
+-------------------------------------------------------------------------------------------------------------------------------------
+3. Penerapan Penggunaan
+    - Pada Interface (UserRepositoryInterface.php), kita akan membuat sebuah Interface/Class yang memilki beberapa method yang nantinya akan diimplementasi/dioverride oleh Class yang bertugas mengelola Data bersama Class Struktur Data/Model (UserRepository.php)
+
+    - contoh Interface pada Repository:
+
+        Interface UserRepositoryInterface {
+            public function getUsers();
+            public function getUserById($userId);
+            public function createUser(array $userInfo);
+            public function updateUser(array $newUserInfo, $userId);
+            public function deleteUser($userId);
+
+            public function getUserPremium();
+        }
+
+    -----------------------------------------------------------------------------
+
+    - contoh Class Pengelola pada Repository :
+
+        class UserRepository implements UserRepositoryInterface {
+
+            // mengoverride semua method Interface karena kita disini mengimplement
+            // Pastikan sudah membuat Model dan migration database untuk Modul/Repository yang bersangkutan
+
+            public function getUsers() {
+
+                //ini menggunakan Eloquent Laravel
+                return User::all();
+             }
+
+            public function getUserById($userId) {
+                return User::findOrfail($userId);
+            }
+
+            public function createUser(array $userInfo) {
+                return User::create($userInfo);
+            }
+
+            public function updateUser(array $newUserInfo, $userId){
+                return User::whereId($userId)->update($newUserInfo);
+            }
+
+            public function deleteUser($userId) {
+                User::destroy($userId);
+            }
+
+            public function getUserPremium() {
+                return User::where('isPremium', true);
+            }
+
+        }
+
+    -----------------------------------------------------------------------------
+
+    - Contoh penggunaan untuk Business Logic yaitu pada Controller :
+
+        class UserController extends Controller {
+
+            private UserRepository $userRepository;
+
+
+            //membuat constructor
+            public function __construct(UserRepository $userRepository) {
+                $this->userRepository = $userRepository;
+            }
+
+
+            public function index(): JsonResponse {
+                return response()->json([
+                    'data' => $this->userRepository->getUsers()
+                ]);
+            }
+
+            public function show(Request $request): JsonResponse {
+
+                $userId = $request->route('id');
+
+                return response()->json([
+                    'data' => $this->userRepository->getUserById($userId)
+                ]);
+            }
+
+            public function store(Request $request): JsonResponse {
+
+                $data = $request->validate([
+                    'username' => 'required|unique:users',
+                    'password' => 'required|min:5|max:12'
+                ]);
+
+
+                $data['password'] = Hash::make($data['password']);
+
+                return response()->json([
+                    'data' => $this->userRepository->createUser($data)
+                ]);
+            }
+
+            public function update(Request $request): JsonResponse {
+
+                $userId = $request->route('id')
+
+                $newData = $request->validate([
+                    'username' => 'required|unique:users',
+                    'password' => 'required|min:5|max:12'
+                ]);
+
+
+                $newData['password'] = Hash::make($data['password']);
+
+                return response()->json([
+                    'data' => $this->userRepository->updateUser($newData, $userId)
+                ]);
+            }
+
+            public function destroy(Request $request): JsonResponse {
+                $userId = $request->route('id');
+
+                if($userId) {
+                    $this->userRepository->deleteUser($userId)
+
+                    return response()->json(null, Response::HTTP_NO_CONTENT);
+
+                } else {
+                    return response()->json([
+                        'code' => 404,
+                        'message' => 'Data not found'
+                    ]);
+                }
+
+            }
+
+            public function getUserPremium(Request $request): JsonResponse {
+                $userPremium = $this->userRepository->getUserPremium()
+
+                return response()->json([
+                    'data' => $userPremium
+                ]);
+            }
+
+
+        }
+
+    -------------------------------------------------------------------------------
+
+    - Jika sudah membuat Data Access dan Business Logic pada controller, daftarkan Route berdasarkan Controllernya pada routes/api.php dengan grouping route atau route biasa,
+
+    - Ada baiknya membuat serviceProvider untuk UserRepositoryInterface dan UserRepository dengan tujuan membinding antara UserRepositoryInterface dengan UserRepository, contoh pada serviceProvidernya :
+        - public function register() {
+            $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
+        }
+
+    - daftarkan serviceProvidernya ke dalam config/app.php
+
+--------------------------------------------------------------------------------------------------------------------
+4. Kesimpulan
+    - Jadi dapat disimpulkan bahwa, dengan memanfaatkan Repository Design Pattern, kita dapat memecah component aplikasi kedalam beberap component yaitu Data Access Layer (Repository) dan Business Logic Layer (Controller). Dengan adanya UserRepository.php membuat UserController.php hanya menjalankan apa yang harus dijalankan sesuai dengan project yang dikerjakan atau biasanya disebut dengan Business Logic. Untuk query rumitnya sudah ditangani oleh UserRepository.php dengan mengimplement UserRepositoryInterface.php yang menyediakan dasar-dasar pengelolaan data untuk 1 modul pada Aplikasi
+
+    - Dengan menerapkan ini juga kita sudah menyesuaikan pengembangan aplikasi dengan prinsip SOLID
+
+    Ref :   - https://medium.com/tlabcircle/implementasi-repository-pattern-dengan-laravel-8-be32eaacbe2d
+            - https://www.twilio.com/blog/repository-pattern-in-laravel-application
+            - https://kodingkode.my.id/repository-pattern-di-laravel/
+            - https://dev.to/carlomigueldy/getting-started-with-repository-pattern-in-laravel-using-inheritance-and-dependency-injection-2ohe
+
+======================================================================================================================
+#PERTANYAAN
+
+    1. Apakah memang diwajibkan membuat serviceProvider untuk membinding Interface dengan Class yang mengimplementnya pada Laravel?
+
+    2. Apabila terdapat function function/query yang sangat banyak, complex atau bersifat khusus, apakah perlu Data Access dan Business Logicnya dilakukan refactoring ke dalam modul modul khususnya sendiri? contohnya semisal selain CRUD untuk user secara umum, semisal user yang termasuk dalam category premium/khusus akan memiliki beberapa fitur/modul untuk melihat content lebih banyak, dan bisa menggunakan aplikasi secara tertutup atau incognito, maka kita buat UserPremiumRepository dan UserPremiumController
