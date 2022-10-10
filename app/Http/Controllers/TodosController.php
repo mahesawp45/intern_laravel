@@ -24,9 +24,9 @@ class TodosController extends Controller
         $title = 'My Todo List';
 
         $todos = $this->todoRepository->getAllTodos();
-        $deletedTodo = $this->todoRepository->getAllDeletedTodo();
 
-        return view('index', compact('title', 'todos', 'deletedTodo'));
+
+        return view('index', compact('title', 'todos'));
     }
 
     /**
@@ -37,9 +37,9 @@ class TodosController extends Controller
     public function create()
     {
         $title = 'Create Todo';
-        $deletedTodo = $this->todoRepository->getAllDeletedTodo();
 
-        return view('create', compact('title', 'deletedTodo'));
+
+        return view('create', compact('title'));
     }
 
     /**
@@ -78,7 +78,7 @@ class TodosController extends Controller
         $title = $todo->title;
         $deletedTodo = $this->todoRepository->getAllDeletedTodo();
 
-        return view('show', compact('todo', 'title', 'deletedTodo'));
+        return view('show', compact('todo', 'title'));
     }
 
     /**
@@ -91,9 +91,8 @@ class TodosController extends Controller
     {
         $todo = $this->todoRepository->getTodoById($id);
         $title = $todo->title;
-        $deletedTodo = $this->todoRepository->getAllDeletedTodo();
 
-        return view('edit', compact('title', 'todo', 'deletedTodo'));
+        return view('edit', compact('title', 'todo'));
     }
 
     /**
@@ -146,9 +145,8 @@ class TodosController extends Controller
     public function recycleBin() {
         $title = 'Recycle Bin';
 
-        $deletedTodo = $this->todoRepository->getAllDeletedTodo();
 
-        return view('recycle-bin', compact('title', 'deletedTodo'));
+        return view('recycle-bin', compact('title'));
     }
 
 }
