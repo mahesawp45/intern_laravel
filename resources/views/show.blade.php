@@ -15,7 +15,7 @@
          <a href="/" class="btn btn-poli p-3">Back</a>
          <a href="{{ route('todo.edit', ['todo' => $todo->id]) }}" class="btn btn-poli p-3 mx-4 btn-edit">Edit</a>
 
-         <form action="{{ route('delete_todo', ['id' => $todo->id]) }}" method="POST">
+         <form action="{{ route('todo.delete_todo', ['todo' => $todo->id]) }}" method="POST">
              @method('PUT')
              @csrf
              <button type="submit" class="btn p-3 btn-delete">Delete</button>
@@ -24,7 +24,7 @@
      @else
      <div class="container-button fixed-bottom mb-5 pe-5">
           <a href=" {{ route('recycle_bin') }} " class="btn btn-poli p-3">Back</a>
-          <form action="{{ route('restore_todo', ['id' => $todo->id]) }}" method="POST">
+          <form action="{{ route('todo.restore_todo', ['todo' => $todo->id]) }}" method="POST">
               @method('PUT')
               @csrf
               <button type="submit" class="btn p-3 mx-4 btn-edit" >Restore</button>

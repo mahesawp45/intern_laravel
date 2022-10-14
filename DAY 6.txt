@@ -1,0 +1,7 @@
+PERTANYAAN
+
+1. apa contoh case menangani multi request HTTP method seperti penjelasan method match dan any pada Routing?
+
+2. apa contoh case Session Blocking?
+
+3. tentang https://laravel.com/docs/9.x/validation#validation-error-response-format

@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Repositories\TodoRepositories;
+use App\Http\Requests\TodoRequest;
+use App\Repositories\EloquentTodoRepository;
 
-class TodosController extends Controller
+class TodoController extends Controller
 {
     protected $todoRepository;
 
-    public function __construct(TodoRepositories $todoRepositories)
+    public function __construct(EloquentTodoRepository $eloquentTodoRepository)
     {
-        $this->todoRepository = $todoRepositories;
+        $this->todoRepository = $eloquentTodoRepository;
     }
 
     /**
@@ -48,20 +48,14 @@ class TodosController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(TodoRequest $todoRequest)
     {
-        $errorMessage = [
-            'title.max' => 'Title max 255 characters',
-            'content.max' => 'Content max 1000 characters'
-        ];
-
-        $validatedData = $request->validate([
-            'title' => 'max:255',
-            'content' => 'max:1000',
-        ], $errorMessage);
+            // data di validasi di TodoRequest
+            $validatedData = $todoRequest->validated();
 
             $this->todoRepository->createTodo($validatedData);
             return redirect(route('todo.index'))->with('success', 'New Todo has been created!');
+
 
     }
 
@@ -76,7 +70,6 @@ class TodosController extends Controller
         $todo = $this->todoRepository->getTodoById($id);
 
         $title = $todo->title;
-        $deletedTodo = $this->todoRepository->getAllDeletedTodo();
 
         return view('show', compact('todo', 'title'));
     }
@@ -102,20 +95,16 @@ class TodosController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(TodoRequest $todoRequest, $id)
     {
-        $errorMessage = [
-            'title.max' => 'Title max 255 characters',
-            'content.max' => 'Content max 1000 characters'
-        ];
 
-        $validatedData = $request->validate([
-            'title' => 'max:255',
-            'content' => 'max:1000',
-        ], $errorMessage);
+            $validatedData = $todoRequest->validated();
 
-        $this->todoRepository->updateTodo($validatedData, $id);
-        return redirect(route('todo.index'))->with('success', 'Todo has been updated!');
+            $this->todoRepository->updateTodo($validatedData, $id);
+            return redirect(route('todo.index'))->with('success', 'Todo has been updated!');
+
+
+
     }
 
     /**
@@ -126,25 +115,40 @@ class TodosController extends Controller
      */
     public function destroy($id)
     {
-       $this->todoRepository->deleteTodoForever($id);
-       return redirect(route('recycle_bin'))->with('success', 'Todo has been deleted!');
+        try {
+            $this->todoRepository->deleteTodoForever($id);
+            return redirect(route('recycle_bin'))->with('success', 'Todo has been deleted!');
+        } catch (\Throwable $th) {
+            return back()->with('errorMessage', 'Something went wrong!');
+        }
+
+
     }
 
     public function deleteTodo($id)
     {
-        $this->todoRepository->deleteTodo($id);
+        try {
+            $this->todoRepository->deleteTodo($id);
+            return redirect(route('index'))->with('success', 'Todo has been moved to the bin!');
+        } catch (\Throwable $th) {
+            return back()->with('errorMessage', 'Something went wrong!');
+        }
 
-        return redirect(route('index'))->with('success','Todo has been moved to the bin!');
     }
 
     public function restoreTodo($id) {
-        $this->todoRepository->restoreTodo($id);
-        return redirect(route('recycle_bin'))->with('success', 'Todo has been restored!');
+
+        try {
+            $this->todoRepository->restoreTodo($id);
+            return redirect(route('recycle_bin'))->with('success', 'Todo has been restored!');
+        } catch (\Throwable $th) {
+            return back()->with('errorMessage', 'Something went wrong!');
+        }
+
     }
 
     public function recycleBin() {
         $title = 'Recycle Bin';
-
 
         return view('recycle-bin', compact('title'));
     }

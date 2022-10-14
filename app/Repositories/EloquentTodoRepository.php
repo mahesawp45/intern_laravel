@@ -3,16 +3,16 @@
 
 namespace App\Repositories;
 use App\Models\Todo;
-use App\Repositories\TodoRepositoriesInterface;
+use App\Repositories\TodoRepository;
 
-class TodoRepositories implements TodoRepositoriesInterface {
+class EloquentTodoRepository implements TodoRepository {
 
     public function getAllTodos(){
-         return Todo::where('isDeleted', 0)->get();
+         return Todo::where('isDeleted', 0)->latest()->get();
     }
 
     public function getTodoById($todoId){
-        return Todo::find($todoId);
+        return Todo::findOrFail($todoId);
     }
 
     public function createTodo($newTodo){
@@ -25,7 +25,7 @@ class TodoRepositories implements TodoRepositoriesInterface {
 
 
     public function getAllDeletedTodo() {
-        return Todo::where('isDeleted', 1)->get();
+        return Todo::where('isDeleted', 1)->latest()->get();
     }
 
     public function deleteTodo($todoId){

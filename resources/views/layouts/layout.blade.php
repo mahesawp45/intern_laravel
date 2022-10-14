@@ -34,6 +34,13 @@
                 </p>
                 @else
                 @endif
+
+                @if (session()->has('errorMessage'))
+                <p class="text-danger mt-5" style="margin-left: 10vw">
+                    {{ session('errorMessage') }}
+                </p>
+                @else
+                @endif
                 <div class="content-todo">
                     @yield('content')
                 </div>

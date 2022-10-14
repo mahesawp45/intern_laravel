@@ -1,0 +1,7 @@
+First Assignment Todo with Repository Design
+
+1. Naming pada folder dan file di php harus diawali dengan capital
+
+2. membuat validasi dengan form request https://laravel.com/docs/9.x/validation#form-request-validation, tidak langsung di controllernya
+
+3. Naming pada class Repository disesuaikan sama apa dia berhubungan, semisal sama Eloquent berarti namanya EloquentTodoRepository, dan Interface nya tidak perlu isi kata Interface contoh TodoRepository

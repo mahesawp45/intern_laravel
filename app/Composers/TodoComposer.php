@@ -2,21 +2,21 @@
 
 namespace App\Composers;
 
-use App\Repositories\TodoRepositories;
+use App\Repositories\EloquentTodoRepository;
 use Illuminate\View\View;
 
 class TodoComposer {
 
-    protected $todoRepositories;
+    protected $EloquentTodoRepository;
 
-    public function __construct(TodoRepositories $todoRepositories)
+    public function __construct(EloquentTodoRepository $EloquentTodoRepository)
     {
-        $this->todoRepositories = $todoRepositories;
+        $this->EloquentTodoRepository = $EloquentTodoRepository;
     }
 
 
     public function compose(View $view) {
-        $view->with('deletedTodo', $this->todoRepositories->getAllDeletedTodo() );
+        $view->with('deletedTodo', $this->EloquentTodoRepository->getAllDeletedTodo() );
     }
 
 

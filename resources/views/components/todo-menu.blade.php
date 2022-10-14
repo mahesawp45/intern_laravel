@@ -4,7 +4,11 @@
         <p>Create Todo</p>
     </a>
     <a href="{{ route('recycle_bin') }}" class="todo-menu-item">
-        <div class="recycle-bin">{{ count($deletedTodo) }} </div>
+        @if ($deletedTodo != null)
+            <div class="recycle-bin">{{ count($deletedTodo) }} </div>
+        @else
+
+        @endif
         <i class="fa-solid fa-trash"></i>
         <p>Recycle Bin</p>
     </a>

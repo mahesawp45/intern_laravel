@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-interface TodoRepositoriesInterface {
+interface TodoRepository {
     public function getAllTodos();
 
     public function getTodoById($todoId);

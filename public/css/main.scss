@@ -1,11 +1,13 @@
 $primary-color: #0c1124;
-$bg-white: rgb(230, 230, 230);
+$bg-white: rgb(215, 215, 215);
 
 @mixin morphismStyle {
-    box-shadow: 5px 5px 20px rgba($color: black, $alpha: 0.1),
-        -5px -5px 20px white;
+    box-shadow: 5px 5px 20px rgba($color: black, $alpha: 0.8),
+        -5px -5px 20px  rgba($color:  white, $alpha: 0.05);
     border-radius: 20px;
     transition: 0.3s;
+    color: rgba($color:  white, $alpha: 0.3);
+    background-color: rgba($color: $primary-color, $alpha: 0.6);
 
     &:hover {
         cursor: pointer;
@@ -15,17 +17,25 @@ $bg-white: rgb(230, 230, 230);
 
 * {
     font-family: 'Montserrat', sans-serif;
-    color: $primary-color;
-    background-color: $bg-white;
+    // color: $primary-color;
+    color: $bg-white;
+    // background-color: $bg-white;
+    background-color: $primary-color;
+
 
 }
 
 body {
     overflow-x: hidden;
-    background-color: $bg-white;
+
+    form {
+        background-color: transparent;
+    }
+
 
     p {
-        color: rgba($color: black, $alpha: 0.5);
+        // color: rgba($color: black, $alpha: 0.5);
+        color: rgba($color: $bg-white, $alpha: 0.5);
         line-height: 2;
         margin: 0;
     }
@@ -43,6 +53,7 @@ body {
         display: flex;
         justify-content: flex-end;
         margin: 0;
+        background-color: transparent;
 
         .btn {
             margin: 0;
@@ -82,13 +93,14 @@ body {
     .side-bar {
         height: 100vh;
         width: 20%;
-        background-color: $bg-white;
-        border-right: 1px solid rgba($color: white, $alpha: 0.5);
+        // background-color: $bg-white;
+        background-color: $primary-color;
+        border-right: 1px solid rgba($color: white, $alpha: 0.05);
         display: flex;
         // justify-content: center;
         flex-direction: column;
-        box-shadow: inset 5px 5px 20px rgba($color: black, $alpha: 0.5),
-            inset -10px -10px 30px white;
+        // box-shadow: inset 5px 5px 20px rgba($color: black, $alpha: 0.5),
+        //     inset -10px -10px 30px white;
 
         .logo {
             text-decoration: none;
@@ -107,28 +119,37 @@ body {
                 justify-content: center;
                 height: 100%;
                 text-align: center;
+                background-color: transparent;
             }
         }
 
         .todo-menu {
             padding: 20px;
+            padding-top: 50px;
             height: 100%;
             width: 100%;
             display: flex;
-
+            // background-color: rgba($color: $bg-white, $alpha: 0.5);
+            background-color: $primary-color;
+            box-shadow: inset 10px 10px 20px rgba($color: black, $alpha: 0.3),
+                    inset -15px -15px 25px rgba($color: white, $alpha: 0.03);
             flex-direction: column;
             align-items: center;
 
             .todo-menu-item {
                 margin-bottom: 25px;
                 text-decoration: none;
-                color: $primary-color;
+                // color: $primary-color;
                 height: 50px;
                 width: 90%;
-                background-color: $bg-white;
+                // background-color: $bg-white;
+                // background-color: $primary-color;
+                background-color: rgba($color: $primary-color, $alpha: 0.7);
                 display: flex;
                 align-items: center;
                 position: relative;
+
+
 
                 .recycle-bin {
                     position: absolute;
@@ -170,7 +191,8 @@ body {
     }
 
     .content-todo {
-        background-color: $bg-white;
+        // background-color: $bg-white;
+        background-color: $primary-color;
         height: auto;
         width: 100%;
         display: flex;
@@ -178,7 +200,9 @@ body {
         flex-wrap: wrap;
         padding: 50px;
         padding-left: 80px;
-
+        // padding-bottom: 100px;
+        // box-shadow: inset 10px 10px 40px rgba($color: black, $alpha: 0.15),
+        //         inset -15px -15px 50px white;
 
         .todo-empty {
             height: 100%;
@@ -196,12 +220,15 @@ body {
             margin: 0 15px;
             margin-bottom: 50px;
             padding: 25px;
-            background-color: $bg-white;
+            // background-color: $bg-white;
+            // background-color: $primary-color;
+            background-color: rgba($color:  white, $alpha: 0.02);
             display: flex;
             flex-direction: column;
-            box-shadow: 10px 10px 30px rgba($color: black, $alpha: 0.1),
-                -15px -15px 35px white;
-            border-radius: 30px 0 30px 0;
+            box-shadow: 10px 10px 30px rgba($color: black, $alpha: 0.5),
+                -10px -10px 35px rgba($color: white, $alpha: 0.04);
+            border-radius: 30px 10px 30px 10px;
+            // border-radius: 30px;
             transition: 0.3s;
 
             &:hover {
@@ -216,8 +243,14 @@ body {
                 display: flex;
                 flex-direction: row;
                 justify-content: space-between;
+                padding: 10px;
+                border-radius: 10px;
+                background-color: rgba($color: $primary-color, $alpha: 0.7);
+                box-shadow: inset 5px 5px 10px rgba($color: black, $alpha: 0.2),
+                    inset -5px -5px 15px rgba($color: white, $alpha: 0.04);
 
                 h4 {
+                    background-color: transparent;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     display: -webkit-box;
@@ -230,11 +263,14 @@ body {
 
             .todo-slug {
                 width: 200px;
+                background-color: transparent;
 
                 p {
+                    background-color: transparent;
                     line-height: 1.5;
                     margin: 0;
-                    color: rgba($color: black, $alpha: 0.5);
+                    // color: rgba($color: black, $alpha: 0.5);
+                    color: rgba($color: white, $alpha: 0.2);
                     overflow: hidden;
                     text-overflow: ellipsis;
                     display: -webkit-box;
@@ -248,9 +284,19 @@ body {
             padding: 0 90px;
             width: 100%;
 
+            .form-control {
+                background-color: rgba($color: $primary-color, $alpha: 0.7);
+                box-shadow: inset 5px 5px 10px rgba($color: black, $alpha: 0.2),
+                    inset -5px -5px 15px rgba($color: white, $alpha: 0.04);
+                border-color: transparent;
+                padding: 10px;
+                color: rgba($color: $bg-white, $alpha: 0.8);
+            }
+
             .form-control:focus {
-                border-color: white;
-                box-shadow: inset 0 1px 1px rgba($color: black, $alpha: 0.04), 0 0 8px white;
+                border-color: transparent;
+                box-shadow: inset 5px 5px 10px rgba($color: black, $alpha: 0.2),
+                        inset -5px -5px 15px rgba($color: white, $alpha: 0.04);
             }
 
             .todo-content-input {
