@@ -1,0 +1,79 @@
+TESTING PHP
+
+1. Pengertian Testing =
+    - Testing adalah suatu kegiatan yang dilakukan developer untuk mengetes unit(fungsi fungsi dalam code), feature/functional atau komponen dari aplikasi yang didevelop
+
+    - Testing biasanya dijalankan dalam environment testing
+
+    - Testing biasanya terdiri dari Assigment(memanggil Unit/Fitur yang akan ditest) dan juga Skenario yang biasanya sebuah function/method build-in dari bahasa pemrograman/framework yang mengolah unit/fitur yang ditest dengan hasil yang diharapkan/ekspektasi
+
+    - Pada laravel kita memang dimungkinkan bisa membuat Unit dan Feature test, namun pada umumnya laravel kita akan lebih sering melakukan feature test
+
+    - Pada laravel, semua konfigurasi PHPUNIT ada di phpunit.xml, dimana kita bisa menconfigurasi db connection dll
+-----------------------------------------------------------------------------------------------------------------------------------------
+2. Fungsi Testing =
+    - Fungsi testing sendiri adalah untuk mengetes fungsionalitas dari sebuah unit dan/atau fitur dari aplikasi apakah sudah sesuai dengan skenario/testcase yang dibuat atau tidak. Selain hanya untuk mengetes, testing ini sangat membantu developer dalam mendevelop aplikasi agar lebih terarah dan menambah percaya diri dengan code yang ditulis karena sudah sesuai dengan skenario testing dan bisa jarang ditemukannya bug
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+3. Unit Testing =
+    - Unit testing merupakan pengetesan skenario test yang dilakukan untuk sebuah komponen terkecil aplikasi misalnya sebuah function/method yang berfungsi untuk mengambil data yang ada pada sebuah Class
+
+    - Pada laravel, Unit Testing dilakukan dalam directory tests/Unit, dimana sebuah class Testing akan mengextend class TestCase dari PHPUnit, dan di dalam Class nya akan mengeksekusi method untuk melakukan testing dari unit yang ditest
+
+    - perintah untuk membuat unit testing pada laravel : php artisan make:test NamaTest --unit
+
+    - Sangat tidak disarankan dalam unit testing untuk mengetest beberapa unit dalam 1 method testing, karena akan menyebabkan kegagalan
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+4. Functional Testing =
+    - Functional testing merupakan pengetesan skenario test yang dilakukan untuk sebuah fitur pada apliaksi seperti mengetest bagaimana object 1 dengan object lain saling berinteraksi atau bahkan mengetes request ke sebuah endpoint pada API.
+
+    - Testing jenis ini akan menggabungkan beberapa unit yang membangun sebuah fitur, misalnya sebuah aplikasi memiliki fitur untuk menampilkan semua product
+
+    - Pada laravel, Functional/Feature testing dilakukan dalam directory test/Feature, dimana sebuah class Testing akan mengextend class TestCase dari Tests
+
+    - perintah untuk membuat feature/functional testing pada laravel : php artisan make:test NamaTest
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+5.
+    - pada laravel bisa melakukan beberapa test (unit dan/atau feature) secara bersamaan berdasarkan jumlah core CPU yang tersedia pada komputer dengan perintah :
+        - php artisan test --parallel
+        - php artisan test --parallel --processes=4 (untuk menentukan jumlah test yang akan dijalankan)
+        - dengan menjalankan parallel ini, seperti perintah --do-not-cache-result ini yang ada pada PHPUnit tidak bisa dijalankan
+
+    - untuk menjalankan 1 test saja bisa menggunakan perintah:
+        - php artisan test --filter namaMethodTest (untuk 1 method yang ada pada class Test)
+        - php artisan test --filter NamaTest (untuk 1 class test dan akan menjalankan beberapa method test di dalamnya)
+
+    - Jika aplikasi laravel berhubungan dengan database, kita bisa menambahkan ( use DatabaseMigrations; dari use Illuminate\Foundation\Testing\DatabaseMigrations;) pada class Test, agar bisa melakukan migrate setiap test, namun apabila tidak ingin merefresh db, kita bisa uncomment pada phpunit.xml untuk DB_CONNECTION dan DB_DATABASE nya
+
+    - untuk memperjelas error, bisa menggunakan $this->withoutExceptionHandling()
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+6. Browser Testing =
+    - pada laravel, Browser testing ini adalah mengetest aplikasi laravel dengan bantuan package laravel dusk untuk menjalankan test casenya yang bergantung pada Google Chrome Driver. Nantinya test ini akan memperlihatkan Tampilan aplikasi yang menyesuaikan dengan skenario test yang dijalankan.
+
+    - Test ini memerintahkan mesin untuk melakukan input data ke dalam form, menekan tombol tertentu, scrolling, perpindahan halaman dan lain-lain layaknya seperti user yang menggunakan aplikasi
+
+    - Pertama, untuk melakukan Browser testing pada laravel, kita harus menambah dependency package laravel dusk dengan perintah:
+        - composer require --dev laravel/dusk, selain ini kita harus memiliki Google Chrome
+
+    - Apabila sudah ditambahkan, maka jalankan perintah:
+        - php artisan dusk:install, perintah ini akan membuat directory baru pada test/Browser sekaligus menginstall Google Chrome driver pada mesin kita
+
+    - Pastikan variable APP_URL pada .env sudah sesuai
+
+    - Sebenarnya, kita bisa melakukan test ini dengan Browser lain seperti penjelasan : https://laravel.com/docs/9.x/dusk#using-other-browsers
+
+    - untuk membuat 1 buah Browser Test bisa menggunakan perintah : php artisan dusk:make NamaTest
+
+    - menjalankan browser test dengan perintah:
+        - php artisan dusk
+        - php artisan dusk:fails -> menjalankan test dimana ditemukan error sebelumnya
+
+
+==========================================================================================================================================
+#PERTANYAAN
+
+1. Apakah perlu melakukan testing untuk unit aplikasi yang paling kecil dan sederhana?, semisal apa bila melakukan request get ke path index yang harus menampilkan tulisan "Selamat Datang" yang merupakan tulisan static yang dihard code
