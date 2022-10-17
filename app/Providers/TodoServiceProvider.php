@@ -16,6 +16,7 @@ class TodoServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(TodoRepository::class, EloquentTodoRepository::class);
+
     }
 
     /**
