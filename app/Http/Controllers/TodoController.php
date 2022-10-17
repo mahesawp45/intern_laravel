@@ -4,14 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TodoRequest;
 use App\Repositories\EloquentTodoRepository;
+use App\Repositories\TodoRepository;
 
 class TodoController extends Controller
 {
     protected $todoRepository;
 
-    public function __construct(EloquentTodoRepository $eloquentTodoRepository)
+    public function __construct(TodoRepository $todoRepository)
     {
-        $this->todoRepository = $eloquentTodoRepository;
+        $this->todoRepository = $todoRepository;
     }
 
     /**
@@ -54,7 +55,7 @@ class TodoController extends Controller
             $validatedData = $todoRequest->validated();
 
             $this->todoRepository->createTodo($validatedData);
-            return redirect(route('todo.index'))->with('success', 'New Todo has been created!');
+            return redirect('/')->with('success', 'New Todo has been created!');
 
 
     }
@@ -101,7 +102,7 @@ class TodoController extends Controller
             $validatedData = $todoRequest->validated();
 
             $this->todoRepository->updateTodo($validatedData, $id);
-            return redirect(route('todo.index'))->with('success', 'Todo has been updated!');
+            return redirect('/')->with('success', 'Todo has been updated!');
 
 
 
