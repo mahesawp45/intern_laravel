@@ -23,7 +23,7 @@ class ShowTodoTest extends TestCase
     public function test_show_or_get_todo_by_id()
     {
 
-
+        $this->withoutExceptionHandling();
 
         $todo = Todo::factory()->create();
 
